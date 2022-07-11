@@ -27,10 +27,10 @@ public class ClockView extends View {
     private final Paint mPointPaint;
     private final Paint mTextPaint;
 
-    private Path mCirclePath;
-    private Path mHourPath;
-    private Path mMinutePath;
-    private Path mSecondPath;
+    private final Path mCirclePath;
+    private final Path mHourPath;
+    private final Path mMinutePath;
+    private final Path mSecondPath;
 
     private PathMeasure mPathMeasure;
     private SumPathEffect mSumPathEffect;
@@ -46,6 +46,8 @@ public class ClockView extends View {
 
     private long mCurrentTimeInSecond = 0;
 
+    private String[] text = {"12", "3", "6", "9"};
+
     public ClockView(Context context) {
         super(context);
 
@@ -53,19 +55,11 @@ public class ClockView extends View {
         mPointPaint = new Paint();
         mTextPaint = new Paint();
 
-        mCirclePaint.setColor(Color.BLACK);
-        mCirclePaint.setAntiAlias(true);
-        mCirclePaint.setStyle(Style.STROKE);
-        mCirclePaint.setStrokeWidth(mCircleWidth);
-
-        mPointPaint.setColor(Color.BLACK);
-        mPointPaint.setAntiAlias(true);
-        mPointPaint.setStyle(Style.FILL);
-
-        mTextPaint.setColor(Color.BLACK);
-        mTextPaint.setAntiAlias(true);
-        mTextPaint.setStyle(Style.FILL);
-        mTextPaint.setTextSize(40);
+        mCirclePath = new Path();
+        mHourPath = new Path();
+        mMinutePath = new Path();
+        mSecondPath = new Path();
+        init();
     }
 
     public ClockView(Context context, @Nullable AttributeSet attrs) {
@@ -79,6 +73,14 @@ public class ClockView extends View {
         mPointPaint = new Paint();
         mTextPaint = new Paint();
 
+        mCirclePath = new Path();
+        mHourPath = new Path();
+        mMinutePath = new Path();
+        mSecondPath = new Path();
+        init();
+    }
+
+    private void init() {
         mCirclePaint.setColor(Color.BLACK);
         mCirclePaint.setAntiAlias(true);
         mCirclePaint.setStyle(Style.STROKE);
@@ -98,28 +100,42 @@ public class ClockView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
+        // 获取 View 大小
         mViewWidth = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
         mViewHeight = getMeasuredHeight() - getPaddingTop() - getPaddingBottom();
 
+        // 创建圆形 Path
         mRadius = mViewWidth / 2 - mCircleWidth;
         mCirclePath.addCircle(0, 0, mRadius, Path.Direction.CW);
 
+        // 创建刻度
+        // addRect 设置每个刻度矩形
+        // PathDashPathEffect 设置每隔一定间距按照圆 Path 旋转排布
+        // SumPathEffect 合并分钟和小时刻度 Effect
         mPathMeasure = new PathMeasure(mCirclePath, false);
         Path minuteShapePath = new Path();
         Path quarterShapePath = new Path();
-        minuteShapePath.addRect(0, 0, mRadius * 0.01F, mRadius * 0.06F, Path.Direction.CW);
+        minuteShapePath.addRect(0, 0, mRadius * 0.01F, mRadius * 0.05F, Path.Direction.CW);
         quarterShapePath.addRect(0, 0, mRadius * 0.02F, mRadius * 0.06F, Path.Direction.CW);
         PathDashPathEffect minuteDashPathEffect = new PathDashPathEffect(minuteShapePath, mPathMeasure.getLength() / 60, 0, PathDashPathEffect.Style.ROTATE);
         PathDashPathEffect quarterDashPathEffect = new PathDashPathEffect(quarterShapePath, mPathMeasure.getLength() / 12, 0, PathDashPathEffect.Style.ROTATE);
         mSumPathEffect = new SumPathEffect(minuteDashPathEffect, quarterDashPathEffect);
 
+        // 创建小时指针矩形
         float hourPointerHeight = mRadius * 0.5F;
-        float hourPointerWidth = mRadius * 0.07F;
-        RectF hourRect = new RectF(-hourPointerWidth / 2, -hourPointerHeight * 0.7F, hourPointerWidth / 2, hourPointerHeight * 0.3F);
+        float hourPointerWidth = mRadius * 0.06F;
+        RectF hourRect = new RectF(-hourPointerWidth / 2, -hourPointerHeight * 0.7F, hourPointerWidth / 2, hourPointerHeight * 0.2F);
         mHourPath.addRoundRect(hourRect, mRectRadius, mRectRadius, Path.Direction.CW);
 
+        // 创建分钟指针矩形
+        float minutePointerHeight = mRadius * 0.8F;
+        float minutePointerWidth = mRadius * 0.04F;
+        RectF minuteRect = new RectF(-minutePointerWidth / 2, -minutePointerHeight * 0.8F, minutePointerWidth / 2, minutePointerHeight * 0.2F);
+        mMinutePath.addRoundRect(minuteRect, mRectRadius, mRectRadius, Path.Direction.CW);
+
+        // 创建秒钟指针矩形
         float secondPointerHeight = mRadius * 0.9F;
-        float secondPointerWidth = mRadius * 0.03F;
+        float secondPointerWidth = mRadius * 0.02F;
         RectF secondRect = new RectF(-secondPointerWidth / 2, -secondPointerHeight * 0.8F, secondPointerWidth / 2, secondPointerHeight * 0.2F);
         mSecondPath.addRoundRect(secondRect, mRectRadius, mRectRadius, Path.Direction.CW);
 
@@ -131,6 +147,7 @@ public class ClockView extends View {
         super.onDraw(canvas);
 
         if (canvas != null) {
+            // 画布平移到屏幕中心
             canvas.translate(mViewWidth / 2, mViewHeight / 2);
 
             // 圆盘
@@ -154,6 +171,7 @@ public class ClockView extends View {
             canvas.drawPath(mMinutePath, mPointPaint);
             canvas.restore();
 
+            mPointPaint.setColor(Color.RED);
             canvas.save();
             canvas.rotate(mSecondDegree);
             canvas.drawPath(mSecondPath, mPointPaint);
@@ -162,6 +180,19 @@ public class ClockView extends View {
             // 中心
             mPointPaint.setColor(Color.WHITE);
             canvas.drawCircle(0, 0, mRadius * 0.02F, mPointPaint);
+
+            //
+//            canvas.save();
+//            int rotateAngle = 45;
+//            for (int i = 0; i < text.length; i++) {
+//                Path textPath = new Path();
+//                RectF textRect = new RectF(0, (mViewHeight = 2 * mRadius) / 2, mViewWidth, (mViewHeight = 2 * mRadius) / 2);
+//                int startAngle = 45 * i;
+//                textPath.addArc(textRect, startAngle, rotateAngle);
+//                float textLen = mTextPaint.measureText(text[i]);
+//                canvas.drawTextOnPath(text[i], textPath, 0, 0, mTextPaint);
+//            }
+//            canvas.restore();
         }
     }
 
