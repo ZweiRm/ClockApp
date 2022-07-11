@@ -1,6 +1,6 @@
 package xin.ahza.clockapp;
 
-import static android.graphics.Paint.*;
+import static android.graphics.Paint.Style;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -11,18 +11,19 @@ import android.graphics.PathDashPathEffect;
 import android.graphics.PathMeasure;
 import android.graphics.RectF;
 import android.graphics.SumPathEffect;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.util.Calendar;
-import java.util.Timer;
 import java.util.TimerTask;
 
-public class ClockView extends View {
-    private Timer mTimer;
-
+public class ClockViewWithHandler extends View {
     private final Paint mCirclePaint;
     private final Paint mPointPaint;
     private final Paint mTextPaint;
@@ -46,27 +47,38 @@ public class ClockView extends View {
 
     private long mCurrentTimeInSecond = 0;
 
-    public ClockView(Context context) {
-        super(context);
+    private final TimerHandler mHandler;
 
-        mCirclePaint = new Paint();
-        mPointPaint = new Paint();
-        mTextPaint = new Paint();
+    private static final class TimerHandler extends Handler  {
+        private WeakReference clockViewWeakReference;
+        private TimerHandler(ClockViewWithHandler clockView) {
+            clockViewWeakReference = new WeakReference<>(clockView);
+        }
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            ClockViewWithHandler view = (ClockViewWithHandler) clockViewWeakReference.get();
+            if (view != null) {
+                view.mCurrentTimeInSecond++;
+                view.computeDegree();
+                view.invalidate();
+                sendEmptyMessageDelayed(1, 1000);
+            }
+            super.handleMessage(msg);
+        }
+    };
 
-        mCirclePath = new Path();
-        mHourPath = new Path();
-        mMinutePath = new Path();
-        mSecondPath = new Path();
-
-        init();
+    public ClockViewWithHandler(Context context) {
+        this(context, null);
     }
 
-    public ClockView(Context context, @Nullable AttributeSet attrs) {
+    public ClockViewWithHandler(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ClockView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ClockViewWithHandler(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        mHandler = new TimerHandler(this);
 
         mCirclePaint = new Paint();
         mPointPaint = new Paint();
@@ -182,9 +194,9 @@ public class ClockView extends View {
             canvas.drawCircle(0, 0, mRadius * 0.02F, mPointPaint);
 
             // 文字
+            float textLen = mTextPaint.measureText("12");
             float textRadius = mRadius - 100;
             for (int i = 1; i <= 60; i++) {
-                float textLen = mTextPaint.measureText("12");
                 double sin = Math.sin(Math.toRadians(6 * i));
                 double cos = Math.cos(Math.toRadians(6 * i));
                 if (i % 5 == 0) {
@@ -205,26 +217,8 @@ public class ClockView extends View {
 
         mCurrentTimeInSecond = hour * 60 * 60 + minute * 60 + second;
 
-        if (mTimer == null) {
-            mTimer = new Timer();
-        } else {
-            mTimer.cancel();
-            mTimerTask.cancel();
-        }
-
-        if (mTimer != null) {
-            mTimer.schedule(mTimerTask, 0, 1000);
-        }
+        mHandler.sendEmptyMessageDelayed(1, 1000);
     }
-
-    private final TimerTask mTimerTask = new TimerTask() {
-        @Override
-        public void run() {
-            mCurrentTimeInSecond++;
-            computeDegree();
-            invalidate();
-        }
-    };
 
     private void computeDegree() {
         int secondsInOneRoll = 12 * 60 * 60;
