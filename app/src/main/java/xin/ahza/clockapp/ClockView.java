@@ -43,6 +43,7 @@ public class ClockView extends View {
     private float mHourDegree = 0;
     private float mMinuteDegree = 0;
     private float mSecondDegree = 0;
+    private float mTextDegree = 0;
 
     private long mCurrentTimeInSecond = 0;
 
@@ -59,6 +60,7 @@ public class ClockView extends View {
         mHourPath = new Path();
         mMinutePath = new Path();
         mSecondPath = new Path();
+
         init();
     }
 
@@ -77,6 +79,7 @@ public class ClockView extends View {
         mHourPath = new Path();
         mMinutePath = new Path();
         mSecondPath = new Path();
+
         init();
     }
 
@@ -93,7 +96,7 @@ public class ClockView extends View {
         mTextPaint.setColor(Color.BLACK);
         mTextPaint.setAntiAlias(true);
         mTextPaint.setStyle(Style.FILL);
-        mTextPaint.setTextSize(40);
+        mTextPaint.setTextSize(100);
     }
 
     @Override
@@ -181,18 +184,18 @@ public class ClockView extends View {
             mPointPaint.setColor(Color.WHITE);
             canvas.drawCircle(0, 0, mRadius * 0.02F, mPointPaint);
 
-            //
-//            canvas.save();
-//            int rotateAngle = 45;
-//            for (int i = 0; i < text.length; i++) {
-//                Path textPath = new Path();
-//                RectF textRect = new RectF(0, (mViewHeight = 2 * mRadius) / 2, mViewWidth, (mViewHeight = 2 * mRadius) / 2);
-//                int startAngle = 45 * i;
-//                textPath.addArc(textRect, startAngle, rotateAngle);
-//                float textLen = mTextPaint.measureText(text[i]);
-//                canvas.drawTextOnPath(text[i], textPath, 0, 0, mTextPaint);
-//            }
-//            canvas.restore();
+            // 文字
+            float textLen = mTextPaint.measureText(text[0]);
+            float textRadius = mRadius - 100;
+            for (int i = 1; i <= 60; i++) {
+                double sin = Math.sin(Math.toRadians(6 * i));
+                double cos = Math.cos(Math.toRadians(6 * i));
+                if (i % 5 == 0) {
+                    float x1 = (float) (sin * textRadius) - textLen * 0.3F;
+                    float y1 = - (float) (cos * textRadius) + textLen * 0.3F;
+                    canvas.drawText(String.valueOf(i / 5), x1, y1, mTextPaint);
+                }
+            }
         }
     }
 
