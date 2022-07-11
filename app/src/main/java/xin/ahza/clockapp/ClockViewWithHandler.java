@@ -21,7 +21,6 @@ import androidx.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
-import java.util.TimerTask;
 
 public class ClockViewWithHandler extends View {
     private final Paint mCirclePaint;
