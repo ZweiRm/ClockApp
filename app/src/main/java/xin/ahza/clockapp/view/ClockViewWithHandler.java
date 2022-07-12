@@ -176,6 +176,21 @@ public class ClockViewWithHandler extends View {
             mCirclePaint.setPathEffect(mSumPathEffect);
             canvas.drawPath(mCirclePath, mCirclePaint);
 
+            // 文字
+            float textLen = mTextPaint.measureText("12");
+            float textRadius = mRadius * 0.8F;
+
+            mTextPaint.setTextSize(mViewWidth * 0.1F);
+            for (int i = 1; i <= 60; i++) {
+                double sin = Math.sin(Math.toRadians(6 * i));
+                double cos = Math.cos(Math.toRadians(6 * i));
+                if (i % 5 == 0) {
+                    float x1 = (float) (sin * textRadius) - textLen * 0.3F;
+                    float y1 = - (float) (cos * textRadius) + textLen * 0.3F;
+                    canvas.drawText(String.valueOf(i / 5), x1, y1, mTextPaint);
+                }
+            }
+
             // 指针
             mPointPaint.setColor(Color.BLACK);
 
@@ -198,21 +213,6 @@ public class ClockViewWithHandler extends View {
             // 中心
             mPointPaint.setColor(Color.WHITE);
             canvas.drawCircle(0, 0, mRadius * 0.02F, mPointPaint);
-
-            // 文字
-            float textLen = mTextPaint.measureText("12");
-            float textRadius = mRadius * 0.8F;
-
-            mTextPaint.setTextSize(mViewWidth * 0.1F);
-            for (int i = 1; i <= 60; i++) {
-                double sin = Math.sin(Math.toRadians(6 * i));
-                double cos = Math.cos(Math.toRadians(6 * i));
-                if (i % 5 == 0) {
-                    float x1 = (float) (sin * textRadius) - textLen * 0.3F;
-                    float y1 = - (float) (cos * textRadius) + textLen * 0.3F;
-                    canvas.drawText(String.valueOf(i / 5), x1, y1, mTextPaint);
-                }
-            }
         }
     }
 
