@@ -14,6 +14,7 @@ import android.graphics.SumPathEffect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -232,11 +233,19 @@ public class ClockViewWithHandler extends View {
         long currentSecond = mCurrentTimeInSecond % secondsInOneRoll;
 
         long leftSeconds;
-        long hours = currentSecond / 60 / 60;
-        leftSeconds = currentSecond - hours * 60 * 60;
-        long minutes = leftSeconds / 60;
-        leftSeconds -= minutes * 60;
-        long seconds = leftSeconds % 60;
+        long leftSecondsL;
+
+        float hours = mCurrentTimeInSecond / 60F / 60F;
+        long hoursL = currentSecond / 60 / 60;
+
+        leftSeconds = currentSecond - hoursL * 60 * 60;
+        leftSecondsL = leftSeconds;
+
+        float minutes = leftSeconds / 60F;
+        long minutesL = leftSecondsL / 60;
+
+        leftSecondsL -= minutesL * 60;
+        long seconds = leftSecondsL % 60;
 
         mHourDegree = hours * 30F;
         mMinuteDegree = minutes * 6F;

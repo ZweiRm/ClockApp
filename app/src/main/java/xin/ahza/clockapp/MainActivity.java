@@ -74,12 +74,11 @@ public class MainActivity extends AppCompatActivity {
         Log.e("OnlineService：", className);
         for (int i = 0; i < serviceList.size(); i++) {
             Log.e("serviceName：", serviceList.get(i).service.getClassName());
-            if (serviceList.get(i).service.getClassName().contains(className) == true) {
+            if (serviceList.get(i).service.getClassName().contains(className)) {
                 isRunning = true;
                 break;
             }
         }
         return isRunning;
-
     }
 }

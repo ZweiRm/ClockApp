@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -115,6 +116,7 @@ public class FloatingWindowService extends Service {
                     if (Math.abs(mStartX - mStopX) >= 1 || Math.abs(mStartY - mStopY) >= 1) {
                         isMove = true;
                     }
+                    Log.d(TAG, "onTouch: " + isMove);
                     break;
                 default:
                     break;
