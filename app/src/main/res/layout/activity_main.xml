@@ -7,11 +7,23 @@
     tools:context=".MainActivity">
 
     <xin.ahza.clockapp.view.ClockViewWithHandler
-        android:id="@+id/clockViewWithHandler2"
+        android:id="@+id/clockViewWithHandler"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/floatingBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/floating_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/clockViewWithHandler" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

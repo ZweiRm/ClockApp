@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ClockApp</string>
+    <string name="floating_btn">开启浮窗</string>
 </resources>
