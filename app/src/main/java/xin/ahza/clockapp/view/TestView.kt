@@ -1,4 +1,4 @@
-package xin.ahza.clockapp
+package xin.ahza.clockapp.view
 
 import android.content.Context
 import android.graphics.*

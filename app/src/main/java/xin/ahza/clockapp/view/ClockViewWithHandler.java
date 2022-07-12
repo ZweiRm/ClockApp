@@ -1,4 +1,4 @@
-package xin.ahza.clockapp;
+package xin.ahza.clockapp.view;
 
 import static android.graphics.Paint.Style;
 
@@ -24,6 +24,7 @@ import java.util.Calendar;
 
 public class ClockViewWithHandler extends View {
     private final Paint mCirclePaint;
+    private final Paint mCircleFillPaint;
     private final Paint mPointPaint;
     private final Paint mTextPaint;
 
@@ -43,6 +44,7 @@ public class ClockViewWithHandler extends View {
     private float mHourDegree = 0;
     private float mMinuteDegree = 0;
     private float mSecondDegree = 0;
+    private float mTextSize = 80;
 
     private long mCurrentTimeInSecond = 0;
 
@@ -82,6 +84,7 @@ public class ClockViewWithHandler extends View {
         mCirclePaint = new Paint();
         mPointPaint = new Paint();
         mTextPaint = new Paint();
+        mCircleFillPaint = new Paint();
 
         mCirclePath = new Path();
         mHourPath = new Path();
@@ -97,6 +100,9 @@ public class ClockViewWithHandler extends View {
         mCirclePaint.setStyle(Style.STROKE);
         mCirclePaint.setStrokeWidth(mCircleWidth);
 
+        mCircleFillPaint.setColor(Color.WHITE);
+        mCircleFillPaint.setAntiAlias(true);
+
         mPointPaint.setColor(Color.BLACK);
         mPointPaint.setAntiAlias(true);
         mPointPaint.setStyle(Style.FILL);
@@ -104,7 +110,6 @@ public class ClockViewWithHandler extends View {
         mTextPaint.setColor(Color.BLACK);
         mTextPaint.setAntiAlias(true);
         mTextPaint.setStyle(Style.FILL);
-        mTextPaint.setTextSize(100);
     }
 
     @Override
@@ -133,7 +138,7 @@ public class ClockViewWithHandler extends View {
         mSumPathEffect = new SumPathEffect(minuteDashPathEffect, quarterDashPathEffect);
 
         // 创建小时指针矩形
-        float hourPointerHeight = mRadius * 0.5F;
+        float hourPointerHeight = mRadius * 0.6F;
         float hourPointerWidth = mRadius * 0.06F;
         RectF hourRect = new RectF(-hourPointerWidth / 2, -hourPointerHeight * 0.7F, hourPointerWidth / 2, hourPointerHeight * 0.2F);
         mHourPath.addRoundRect(hourRect, mRectRadius, mRectRadius, Path.Direction.CW);
@@ -162,6 +167,7 @@ public class ClockViewWithHandler extends View {
             canvas.translate(mViewWidth / 2, mViewHeight / 2);
 
             // 圆盘
+            canvas.drawCircle(0, 0, mRadius, mCircleFillPaint);
             mCirclePaint.setPathEffect(null);
             canvas.drawPath(mCirclePath, mCirclePaint);
 
@@ -194,7 +200,9 @@ public class ClockViewWithHandler extends View {
 
             // 文字
             float textLen = mTextPaint.measureText("12");
-            float textRadius = mRadius - 100;
+            float textRadius = mRadius * 0.8F;
+
+            mTextPaint.setTextSize(mViewWidth * 0.1F);
             for (int i = 1; i <= 60; i++) {
                 double sin = Math.sin(Math.toRadians(6 * i));
                 double cos = Math.cos(Math.toRadians(6 * i));

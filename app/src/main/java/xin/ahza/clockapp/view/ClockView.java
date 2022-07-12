@@ -1,4 +1,4 @@
-package xin.ahza.clockapp;
+package xin.ahza.clockapp.view;
 
 import static android.graphics.Paint.*;
 
