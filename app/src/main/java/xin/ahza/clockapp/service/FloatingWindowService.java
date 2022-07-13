@@ -16,8 +16,6 @@ import xin.ahza.clockapp.MainActivity;
 import xin.ahza.clockapp.view.ClockViewWithHandler;
 
 public class FloatingWindowService extends Service {
-    private static final String TAG = "FloatingWindowService";
-
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mLayoutParams;
     private ClockViewWithHandler mHandlerClockView;
@@ -41,8 +39,6 @@ public class FloatingWindowService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-//        mWindowManager.removeView(mHandlerClockView);
     }
 
     @Nullable
@@ -112,7 +108,6 @@ public class FloatingWindowService extends Service {
                     if (Math.abs(mStartX - mStopX) >= 1 || Math.abs(mStartY - mStopY) >= 1) {
                         isMove = true;
                     }
-                    Log.d(TAG, "onTouch: " + isMove);
                     break;
                 default:
                     break;
