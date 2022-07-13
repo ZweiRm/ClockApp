@@ -3,13 +3,14 @@ package xin.ahza.clockapp.service;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+
+import androidx.annotation.Nullable;
 
 import xin.ahza.clockapp.MainActivity;
 import xin.ahza.clockapp.view.ClockViewWithHandler;
@@ -32,6 +33,8 @@ public class FloatingWindowService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        initFloating();
+        initWindow();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -39,20 +42,13 @@ public class FloatingWindowService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        mWindowManager.removeView(mHandlerClockView);
+//        mWindowManager.removeView(mHandlerClockView);
     }
 
+    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        initFloating();
-        initWindow();
-        return new FloatBinder();
-    }
-
-    public class FloatBinder extends Binder {
-        public FloatingWindowService getService() {
-            return FloatingWindowService.this;
-        }
+        return null;
     }
 
     private void initFloating() {

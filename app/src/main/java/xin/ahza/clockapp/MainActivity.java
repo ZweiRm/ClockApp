@@ -3,12 +3,9 @@ package xin.ahza.clockapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,8 +15,6 @@ import java.util.List;
 import xin.ahza.clockapp.service.FloatingWindowService;
 
 public class MainActivity extends AppCompatActivity {
-    private boolean hasBind = false;
-
     private Button mFloatingBtn;
 
     @Override
@@ -34,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
                 moveTaskToBack(true);
                 Intent intent = new Intent(MainActivity.this, FloatingWindowService.class);
 
-                hasBind = bindService(intent, mClockServiceConnection, Context.BIND_AUTO_CREATE);
+                startService(intent);
             }
         });
     }
@@ -43,25 +38,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onPostResume() {
         super.onPostResume();
         if (isServiceRunning(this, FloatingWindowService.class.getName())) {
-            Intent stopServiceIntent = new Intent(this, FloatingWindowService.class);
+            Intent stopServiceIntent = new Intent(MainActivity.this, FloatingWindowService.class);
             stopService(stopServiceIntent);
-            unbindService(mClockServiceConnection);
+            Log.e("TAG----RESUME----SERVICE", "onPostResume: isServiceRunning" + isServiceRunning(this, FloatingWindowService.class.getName()));
         }
     }
-
-    ServiceConnection mClockServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            // 获取服务操作对象
-            FloatingWindowService.FloatBinder binder = (FloatingWindowService.FloatBinder) service;
-            binder.getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-        }
-    };
-
 
     public static boolean isServiceRunning(Context mContext, String className) {
         boolean isRunning = false;
