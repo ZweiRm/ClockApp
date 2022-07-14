@@ -102,10 +102,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // 获取服务的操作对象
-            FloatingWindowService.FloatBinder binder = (FloatingWindowService.FloatBinder) service;
-            binder.getService();
-
             mFloatingServiceBinder = (FloatingWindowService.FloatBinder) service;
+            mFloatingServiceBinder.getService();
             hasBind = true;
 
             connected = true;
