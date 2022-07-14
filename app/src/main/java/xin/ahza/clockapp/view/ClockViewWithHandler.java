@@ -44,7 +44,6 @@ public class ClockViewWithHandler extends View {
     private float mHourDegree = 0;
     private float mMinuteDegree = 0;
     private float mSecondDegree = 0;
-    private float mTextSize = 80;
 
     private long mCurrentTimeInSecond = 0;
 
@@ -227,6 +226,8 @@ public class ClockViewWithHandler extends View {
         mHandler.sendEmptyMessageDelayed(1, 1000);
     }
 
+    // 计算指针角度
+    // 同时计算两套角度，整数角度用于秒针，浮点角度用于时针分针
     private void computeDegree() {
         int secondsInOneRoll = 12 * 60 * 60;
         long currentSecond = mCurrentTimeInSecond % secondsInOneRoll;

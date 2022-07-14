@@ -12,7 +12,6 @@ import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
-import xin.ahza.clockapp.MainActivity;
 import xin.ahza.clockapp.view.ClockViewWithHandler;
 
 public class FloatingWindowService extends Service {
