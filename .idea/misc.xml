@@ -4,8 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../../../../../../layout/custom_preview.xml" value="0.1" />
+        <entry key="../../../../../../layout/custom_preview.xml" value="0.13148148148148148" />
         <entry key="..\:/Apps/WorkSpace/AndroidStudioProjects/ClockApp/app/src/main/res/layout/activity_main.xml" value="0.24330900243309003" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/global_dialog.xml" value="0.22" />
       </map>
     </option>
   </component>

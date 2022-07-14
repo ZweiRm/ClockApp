@@ -3,8 +3,8 @@ package xin.ahza.clockapp.service;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,6 +23,7 @@ public class FloatingWindowService extends Service {
     private int mTouchStartX, mTouchStartY, mTouchCurrentX, mTouchCurrentY; // 开始触控的坐标，移动时的坐标（相对于屏幕左上角的坐标）
     private int mStartX, mStartY, mStopX, mStopY;   // 开始时的坐标和结束时的坐标（相对于自身控件的坐标）
     private boolean isMove; // 判断悬浮窗口是否移动，这里做个标记，防止移动后松手触发了点击事件
+    private boolean isShown;
 
     @Override
     public void onCreate() {
@@ -44,20 +45,46 @@ public class FloatingWindowService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        initFloating();
+        initWindow();
+        isShown = true;
+        return new FloatBinder();
     }
+
+    public class FloatBinder extends Binder {
+        public FloatingWindowService getService() {
+            return FloatingWindowService.this;
+        }
+
+        public boolean getWindowStatus() {
+            return isShown;
+        }
+
+        public void showWindow() {
+            initFloating();
+            initWindow();
+            isShown = true;
+        }
+
+        public void hideWindows() {
+            mWindowManager.removeView(mHandlerClockView);
+            isShown = false;
+        }
+    }
+
+
 
     private void initFloating() {
         mHandlerClockView = new ClockViewWithHandler(this);
-        mHandlerClockView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(FloatingWindowService.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                mWindowManager.removeView(mHandlerClockView);
-            }
-        });
+//        mHandlerClockView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(FloatingWindowService.this, MainActivity.class);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                startActivity(intent);
+////                mWindowManager.removeView(mHandlerClockView);
+//            }
+//        });
         mHandlerClockView.setOnTouchListener(new FloatingListener());
     }
 
