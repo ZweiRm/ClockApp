@@ -11,22 +11,25 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.xiaomi.common.IFloatingWindowService;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import xin.ahza.clockapp.service.FloatingWindowService;
 import xin.ahza.clockapp.util.GlobalDialogSingle;
 
 public class MainActivity extends AppCompatActivity {
-    private FloatingWindowService.FloatBinder mFloatingServiceBinder;
+//    private FloatingWindowService.FloatBinder mFloatingServiceBinder;
     private Button mFloatingBtn;
     private Button mRemoveBtn;
     private boolean hasBind = false;
+    IFloatingWindowService mFloatingWindowService;
 
     FloatingServiceConnection mFloatingServiceConnection = new FloatingServiceConnection(this);
 
@@ -40,30 +43,37 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        if (!Settings.canDrawOverlays(MainActivity.this)) {     // 权限检测
+            new GlobalDialogSingle(MainActivity.this, "", "当前未获取悬浮窗权限", "去开启", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), 0);
+                }
+            }).show();
+        } else {    // 绑定服务
+            Intent intentBind = new Intent(MainActivity.this, IFloatingWindowService.class);
+            intentBind.setAction(IFloatingWindowService.class.getName());
+            boolean b = bindService(intentBind, mFloatingServiceConnection, Context.BIND_AUTO_CREATE);
+            Log.e("TAG---------", "run: 绑定服务" + b);
+        }
+
         // 生成浮窗按钮
         mFloatingBtn = findViewById(R.id.floatingBtn);
         mFloatingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!Settings.canDrawOverlays(MainActivity.this)) {     // 权限检测
-                    new GlobalDialogSingle(MainActivity.this, "", "当前未获取悬浮窗权限", "去开启", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), 0);
-                        }
-                    }).show();
-                } else {    // 绑定服务
-                    Intent intentBind = new Intent(MainActivity.this, FloatingWindowService.class);
-                    bindService(intentBind, mFloatingServiceConnection, Context.BIND_AUTO_CREATE);
-                }
-
                 // 在绑定成功后利用 Binder 中提供的状态函数判断显示浮窗
                 mFloatingServiceConnection.executeAfterServiceConnected(new Runnable() {
                     @Override
                     public void run() {
-                        if (!mFloatingServiceBinder.getWindowStatus()) {
-                            mFloatingServiceBinder.showWindow();
+                        try {
+                            Log.e("TAG---------", "run: " + mFloatingWindowService);
+                            if (!mFloatingWindowService.getWindowStatus()) {
+                                mFloatingWindowService.showWindow();
+                            }
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -79,8 +89,12 @@ public class MainActivity extends AppCompatActivity {
                 mFloatingServiceConnection.executeAfterServiceConnected(new Runnable() {
                     @Override
                     public void run() {
-                        if (mFloatingServiceBinder.getWindowStatus()) {
-                            mFloatingServiceBinder.hideWindows();
+                        try {
+                            if (mFloatingWindowService.getWindowStatus()) {
+                                mFloatingWindowService.hideWindows();
+                            }
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -102,8 +116,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // 获取服务的操作对象
-            mFloatingServiceBinder = (FloatingWindowService.FloatBinder) service;
-            mFloatingServiceBinder.getService();
+            mFloatingWindowService = IFloatingWindowService.Stub.asInterface(service);
             hasBind = true;
 
             connected = true;

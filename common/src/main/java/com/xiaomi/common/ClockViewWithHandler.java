@@ -1,4 +1,4 @@
-package xin.ahza.clockapp.view;
+package com.xiaomi.common;
 
 import static android.graphics.Paint.Style;
 
@@ -65,7 +65,7 @@ public class ClockViewWithHandler extends View {
             }
             super.handleMessage(msg);
         }
-    };
+    }
 
     public ClockViewWithHandler(Context context) {
         this(context, null);

@@ -1,10 +1,10 @@
-package xin.ahza.clockapp.service;
+package com.xiaomi.service;
 
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.os.Binder;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,7 +12,8 @@ import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
-import xin.ahza.clockapp.view.ClockViewWithHandler;
+import com.xiaomi.common.ClockViewWithHandler;
+import com.xiaomi.common.IFloatingWindowService;
 
 public class FloatingWindowService extends Service {
     private WindowManager mWindowManager;
@@ -44,32 +45,53 @@ public class FloatingWindowService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        initFloating();
-        initWindow();
-        isShown = true;
-        return new FloatBinder();
+        return binder;
     }
 
-    public class FloatBinder extends Binder {
-        public FloatingWindowService getService() {
-            return FloatingWindowService.this;
+//    public class FloatBinder extends Binder {
+//        public FloatingWindowService getService() {
+//            return FloatingWindowService.this;
+//        }
+//
+//        public boolean getWindowStatus() {
+//            return isShown;
+//        }
+//
+//        public void showWindow() {
+//            initFloating();
+//            initWindow();
+//            isShown = true;
+//        }
+//
+//        public void hideWindows() {
+//            mWindowManager.removeView(mHandlerClockView);
+//            isShown = false;
+//        }
+//    }
+
+    private final IFloatingWindowService.Stub binder = new IFloatingWindowService.Stub() {
+        @Override
+        public void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {
         }
 
-        public boolean getWindowStatus() {
+        @Override
+        public boolean getWindowStatus() throws RemoteException {
             return isShown;
         }
 
-        public void showWindow() {
+        @Override
+        public void showWindow() throws RemoteException {
             initFloating();
             initWindow();
             isShown = true;
         }
 
-        public void hideWindows() {
+        @Override
+        public void hideWindows() throws RemoteException {
             mWindowManager.removeView(mHandlerClockView);
             isShown = false;
         }
-    }
+    };
 
 
 
@@ -100,7 +122,7 @@ public class FloatingWindowService extends Service {
         mLayoutParams.x = 0;
         mLayoutParams.y = 300;
 
-        mWindowManager.addView(mHandlerClockView, mLayoutParams);
+//        mWindowManager.addView(mHandlerClockView, mLayoutParams);
     }
 
     private class FloatingListener implements View.OnTouchListener {
@@ -122,7 +144,7 @@ public class FloatingWindowService extends Service {
 
                     mLayoutParams.x += mTouchCurrentX - mTouchStartX;
                     mLayoutParams.y += mTouchCurrentY - mTouchStartY;
-                    mWindowManager.updateViewLayout(mHandlerClockView, mLayoutParams);
+//                    mWindowManager.updateViewLayout(mHandlerClockView, mLayoutParams);
 
                     mTouchStartX = mTouchCurrentX;
                     mTouchStartY = mTouchCurrentY;

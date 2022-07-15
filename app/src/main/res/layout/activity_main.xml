@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <xin.ahza.clockapp.view.ClockViewWithHandler
+    <com.xiaomi.common.ClockViewWithHandler
         android:id="@+id/clockViewWithHandler"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
