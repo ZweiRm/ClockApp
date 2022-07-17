@@ -16,6 +16,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.xiaomi.common.IFloatingWindowService;
 
@@ -52,8 +53,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).show();
         } else {    // 绑定服务
-            Intent intentBind = new Intent(MainActivity.this, IFloatingWindowService.class);
-            intentBind.setAction(IFloatingWindowService.class.getName());
+//            Intent intentBind = new Intent(MainActivity.this, IFloatingWindowService.class);
+//            intentBind.setAction(IFloatingWindowService.class.getName());
+
+            Intent intentBind = new Intent();
+            intentBind.setPackage("com.xiaomi.service");
+            intentBind.setAction("AIDL.service");
+
             boolean b = bindService(intentBind, mFloatingServiceConnection, Context.BIND_AUTO_CREATE);
             Log.e("TAG---------", "run: 绑定服务" + b);
         }
@@ -115,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Toast.makeText(getApplicationContext(),"已连接服务器",Toast.LENGTH_LONG).show();
+
             // 获取服务的操作对象
             mFloatingWindowService = IFloatingWindowService.Stub.asInterface(service);
             hasBind = true;

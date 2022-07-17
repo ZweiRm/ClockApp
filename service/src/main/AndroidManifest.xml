@@ -23,7 +23,11 @@
         <service
             android:name=".FloatingWindowService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true" >
+            <intent-filter android:priority="1000">
+                <action android:name="AIDL.service"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
