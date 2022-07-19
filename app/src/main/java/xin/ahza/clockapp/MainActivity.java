@@ -53,12 +53,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).show();
         } else {    // 绑定服务
-//            Intent intentBind = new Intent(MainActivity.this, IFloatingWindowService.class);
-//            intentBind.setAction(IFloatingWindowService.class.getName());
-
             Intent intentBind = new Intent();
-            intentBind.setPackage("com.xiaomi.service");
-            intentBind.setAction("AIDL.service");
+            intentBind.setComponent(new ComponentName("com.xiaomi.service", "com.xiaomi.service.FloatingWindowService"));
 
             boolean b = bindService(intentBind, mFloatingServiceConnection, Context.BIND_AUTO_CREATE);
             Log.e("TAG---------", "run: 绑定服务" + b);
@@ -69,20 +65,21 @@ public class MainActivity extends AppCompatActivity {
         mFloatingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 在绑定成功后利用 Binder 中提供的状态函数判断显示浮窗
-                mFloatingServiceConnection.executeAfterServiceConnected(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Log.e("TAG---------", "run: " + mFloatingWindowService);
-                            if (!mFloatingWindowService.getWindowStatus()) {
-                                mFloatingWindowService.showWindow();
+                if (mFloatingWindowService != null && mFloatingWindowService.asBinder().isBinderAlive()) {
+                    // 在绑定成功后利用 Binder 中提供的状态函数判断显示浮窗
+                    mFloatingServiceConnection.executeAfterServiceConnected(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                if (!mFloatingWindowService.getWindowStatus()) {
+                                    mFloatingWindowService.showWindow();
+                                }
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
                             }
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
                         }
-                    }
-                });
+                    });
+                }
             }
         });
 

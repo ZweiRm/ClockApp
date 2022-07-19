@@ -2,6 +2,7 @@ package com.xiaomi.common;
 
 import static android.graphics.Paint.Style;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,12 +15,12 @@ import android.graphics.SumPathEffect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.lang.ref.WeakReference;
 import java.util.Calendar;
 
 public class ClockViewWithHandler extends View {
@@ -47,25 +48,14 @@ public class ClockViewWithHandler extends View {
 
     private long mCurrentTimeInSecond = 0;
 
-    private final TimerHandler mHandler;
-
-    private static final class TimerHandler extends Handler  {
-        private WeakReference clockViewWeakReference;
-        private TimerHandler(ClockViewWithHandler clockView) {
-            clockViewWeakReference = new WeakReference<>(clockView);
-        }
+    private final Handler mHandler = new Handler() {
+        @SuppressLint("HandlerLeak")
         @Override
         public void handleMessage(@NonNull Message msg) {
-            ClockViewWithHandler view = (ClockViewWithHandler) clockViewWeakReference.get();
-            if (view != null) {
-                view.mCurrentTimeInSecond++;
-                view.computeDegree();
-                view.invalidate();
-                sendEmptyMessageDelayed(1, 1000);
-            }
             super.handleMessage(msg);
+            startAnimator();
         }
-    }
+    };
 
     public ClockViewWithHandler(Context context) {
         this(context, null);
@@ -77,8 +67,6 @@ public class ClockViewWithHandler extends View {
 
     public ClockViewWithHandler(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
-        mHandler = new TimerHandler(this);
 
         mCirclePaint = new Paint();
         mPointPaint = new Paint();
@@ -109,6 +97,18 @@ public class ClockViewWithHandler extends View {
         mTextPaint.setColor(Color.BLACK);
         mTextPaint.setAntiAlias(true);
         mTextPaint.setStyle(Style.FILL);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        startAnimator();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        Log.e("TAG-----------", "onDetachedFromWindow: ");
     }
 
     @Override
@@ -222,6 +222,9 @@ public class ClockViewWithHandler extends View {
         int second = calendar.get(Calendar.SECOND);
 
         mCurrentTimeInSecond = hour * 60 * 60 + minute * 60 + second;
+
+        computeDegree();
+        invalidate();
 
         mHandler.sendEmptyMessageDelayed(1, 1000);
     }

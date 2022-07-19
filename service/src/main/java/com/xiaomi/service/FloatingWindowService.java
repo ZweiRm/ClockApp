@@ -1,15 +1,21 @@
 package com.xiaomi.service;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.xiaomi.common.ClockViewWithHandler;
@@ -25,9 +31,33 @@ public class FloatingWindowService extends Service {
     private boolean isMove; // 判断悬浮窗口是否移动，这里做个标记，防止移动后松手触发了点击事件
     private boolean isShown;
 
+    Handler mHandler;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        mHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what) {
+                    case 1:
+                        initWindow();
+                        initFloating();
+                        mWindowManager.addView(mHandlerClockView, mLayoutParams);
+
+                        isShown = true;
+                        Log.e("TAG---------A", "run: 点击开启浮窗后Service端浮窗状态" + isShown);
+                        break;
+                    case 2:
+                        Log.e("TAG---------A", "run: hideWindow WM状态" + mWindowManager);
+                        mWindowManager.removeView(mHandlerClockView);
+                        isShown = false;
+                        break;
+                }
+            }
+        };
+
     }
 
     @Override
@@ -48,27 +78,6 @@ public class FloatingWindowService extends Service {
         return binder;
     }
 
-//    public class FloatBinder extends Binder {
-//        public FloatingWindowService getService() {
-//            return FloatingWindowService.this;
-//        }
-//
-//        public boolean getWindowStatus() {
-//            return isShown;
-//        }
-//
-//        public void showWindow() {
-//            initFloating();
-//            initWindow();
-//            isShown = true;
-//        }
-//
-//        public void hideWindows() {
-//            mWindowManager.removeView(mHandlerClockView);
-//            isShown = false;
-//        }
-//    }
-
     private final IFloatingWindowService.Stub binder = new IFloatingWindowService.Stub() {
         @Override
         public void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {
@@ -81,31 +90,18 @@ public class FloatingWindowService extends Service {
 
         @Override
         public void showWindow() throws RemoteException {
-            initFloating();
-            initWindow();
-            isShown = true;
+            mHandler.sendEmptyMessage(1);
         }
 
         @Override
         public void hideWindows() throws RemoteException {
-            mWindowManager.removeView(mHandlerClockView);
-            isShown = false;
+            mHandler.sendEmptyMessage(2);
         }
     };
 
-
-
+    @SuppressLint("ClickableViewAccessibility")
     private void initFloating() {
         mHandlerClockView = new ClockViewWithHandler(this);
-//        mHandlerClockView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(FloatingWindowService.this, MainActivity.class);
-//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                startActivity(intent);
-////                mWindowManager.removeView(mHandlerClockView);
-//            }
-//        });
         mHandlerClockView.setOnTouchListener(new FloatingListener());
     }
 
@@ -121,8 +117,6 @@ public class FloatingWindowService extends Service {
         mLayoutParams.gravity = Gravity.TOP | Gravity.START;
         mLayoutParams.x = 0;
         mLayoutParams.y = 300;
-
-//        mWindowManager.addView(mHandlerClockView, mLayoutParams);
     }
 
     private class FloatingListener implements View.OnTouchListener {
@@ -144,7 +138,7 @@ public class FloatingWindowService extends Service {
 
                     mLayoutParams.x += mTouchCurrentX - mTouchStartX;
                     mLayoutParams.y += mTouchCurrentY - mTouchStartY;
-//                    mWindowManager.updateViewLayout(mHandlerClockView, mLayoutParams);
+                    mWindowManager.updateViewLayout(mHandlerClockView, mLayoutParams);
 
                     mTouchStartX = mTouchCurrentX;
                     mTouchStartY = mTouchCurrentY;
